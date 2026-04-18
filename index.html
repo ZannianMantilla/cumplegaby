@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Para: Reboltosa 🌈</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,500;1,300;1,500&family=EB+Garamond:ital,wght@0,400;0,500;1,400;1,500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- Música de fondo — coloca tu archivo como background.mp3 en la misma carpeta -->
+<audio id="bg-audio" preload="auto">
+  <source src="audio1.ogg" type="audio/mpeg">
+</audio>
+
+<canvas id="cf-canvas"></canvas>
+
+<!-- ═══ INTRO ═══ -->
+<div id="intro">
+  <canvas id="stars-c"></canvas>
+  <div class="intro-inner">
+    <div class="para-label">para la:</div>
+    <div class="big-name">Reboltosa</div>
+    <div class="intro-hint">ula calta del guelelo chino ✉️</div>
+    <button class="open-btn" id="open-btn">🎂 Abrir carta</button>
+  </div>
+</div>
+
+<!-- ═══ PÁGINA PRINCIPAL ═══ -->
+<div id="page">
+
+  <div class="letter-outer">
+    <div class="letter-fold"><div class="fold-crease"></div></div>
+    <div class="paper">
+      <div class="seal">💌</div>
+      <div class="letter-top">
+        <span class="letter-from">Desde el pasado</span>
+        <span class="letter-date">16 de abril</span>
+      </div>
+      <div id="letter-body"></div>
+      <div class="skip-hint" id="skip-btn">toca para saltar →</div>
+      <div class="flourish">✦</div>
+    </div>
+
+    <!-- Botones finales — aparecen debajo de la carta cuando todo termina -->
+    <div id="final-btns" class="final-btns hidden">
+      <button id="btn-therapy" class="final-btn btn-therapy">Mi terapia</button>
+      <button id="btn-close"   class="final-btn btn-close">Cerrar la página</button>
+    </div>
+  </div>
+
+  <!-- Celebración -->
+  <div id="celebration">
+    <div class="cel-title">¡Feliz Cumpleaños!</div>
+    <div class="cel-sub">Que cumpla musho año ma y tlabaja tiene que tlabaja 💛</div>
+    <div class="cel-deco">
+      <span style="--d:0s">🌈</span>
+      <span style="--d:.18s">🎉</span>
+      <span style="--d:.36s">🎂</span>
+      <span style="--d:.54s">⭐</span>
+      <span style="--d:.72s">🌸</span>
+      <span style="--d:.9s">🎊</span>
+      <span style="--d:1.08s">✨</span>
+      <span style="--d:1.26s">💛</span>
+      <span style="--d:1.44s">🦋</span>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══ SECCIÓN TERAPIA ═══ -->
+<div id="therapy" class="therapy-section">
+
+  <!-- Partículas de terapia -->
+  <canvas id="therapy-canvas"></canvas>
+
+  <!-- FORMULARIO -->
+  <div id="therapy-form-wrap" class="therapy-form-wrap">
+    <div class="therapy-card">
+      <div class="therapy-ornament">✦</div>
+      <h1 class="therapy-question">
+        ¿Me permitirías el honor<br>de que seas mi novia?
+      </h1>
+      <p class="therapy-label">Ingresa una fecha para continuar</p>
+
+      <div class="date-field">
+        <input type="date" id="therapy-date" class="date-input">
+      </div>
+
+      <p id="therapy-error" class="therapy-error hidden">
+        Tal vez, entonces no debas entrar.
+      </p>
+
+      <button id="therapy-submit" class="therapy-submit-btn">Continuar →</button>
+    </div>
+  </div>
+
+  <!-- TEXTO EMOCIONAL — navegación por párrafos -->
+  <div id="therapy-text-wrap" class="therapy-text-wrap hidden">
+
+    <div class="para-viewer">
+      <div class="para-index" id="para-index">1 / 9</div>
+
+      <div class="para-stage" id="para-stage">
+        <p class="para-text" id="para-text"></p>
+      </div>
+
+      <div class="para-nav">
+        <button class="nav-btn" id="para-prev" aria-label="Anterior">&#8592;</button>
+        <div class="para-dots" id="para-dots"></div>
+        <button class="nav-btn" id="para-next" aria-label="Siguiente">&#8594;</button>
+      </div>
+    </div>
+
+    <!-- Contenedor multimedia -->
+    <div class="media-container">
+      <div class="media-thumb" id="media-thumb">
+        <img src="imagen1.png" alt="Recuerdo" class="media-img">
+        <div class="media-overlay">
+          <div class="play-circle">&#9654;</div>
+          <span class="play-label">Reproducir</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Lightbox de video -->
+  <div id="video-lightbox" class="video-lightbox">
+    <div class="lb-backdrop" id="lb-backdrop"></div>
+    <div class="lb-content">
+      <button class="lb-close" id="lb-close">&#10005;</button>
+      <video id="therapy-video" src="video1.mp4" controls playsinline></video>
+    </div>
+  </div>
+
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
