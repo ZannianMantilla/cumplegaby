@@ -119,17 +119,21 @@ function spawnBubbles() {
 const FULL_MSG = [
   'SUPER FELIZ CUMPLEAÑOS, REBOLTOSA.',
   '',
-  '¡Qué maravilloso día para tener el pelo como un arcoíris! Espero que aún lo tengas así. Seguro que hoy será un gran día para ti.',
+  '¡Qué maravilloso día para tener el pelo como un arcoíris! Espero que aún lo tengas así. Seguro que hoy será un gran día para ti; te dije que estaría para apoyarte, en especial hoy, que es un momento tan único por ser tu cumpleaños.',
   '',
-  'Mira que me encontré con un asiático que me empezó a hablar en mandarín; solo le entendí que tenía algo para ti. Pensé: "¿Por qué no?" Total, te lo mereces por mantener el primer puesto como experta en Megamente.',
+  'Mira que me encontré con un asiático que me empezó a hablar en mandarín; solo le entendí que tenía algo para ti. Pensé: "¿Por qué no?" Total, te lo mereces por mantener el primer puesto como experta en monólogos de Megamente.',
   '',
-  'Lo siento si en algún momento no pude felicitarte por mensaje el día de hoy; no sé qué estará pasando en la vida del Zannián del futuro. Yo soy el del 16 de abril.',
+  'Lo siento si en algún momento no pude felicitarte por mensaje el día de hoy; no sé qué estará pasando en la vida del Zannián del futuro. Yo soy el del 16 de abril, mínimo vas a pensar: "Ush, este chino lo tenía planeado hace rato", y sí, sabes cómo soy yo.',
   '',
-  'En unos días me van a dejar trabajando como profesor para unos celadores; ahora sí puedes decir que estoy viejo. Ya no te enrollo más, que siempre me decías que hablaba mucho.',
+  'En unos días me van a dejar trabajando como profesor para unos celadores; ahora sí puedes decir que estoy re viejo. Ya no te enrollo más, que siempre me decías que hablaba mucho.',
   '',
   'Ten un lindo día. Espero que tomen muchas fotos, que Zeus no se enloquezca en tu casa y que tus seres queridos te brinden todo el calor de su amor.',
   '',
   'Muchos éxitos con tu futura empresa, señorita Emprendimientos.',
+  '',
+    'No olvides darte un abrazo a ti misma por lo bien que lo has hecho.',
+  '',
+    '-Te quiere el estrelloso super ñero ( 💜 ).',
   '',
   '(sí, usé autocorrector para que quedara bonito; lo bueno es que aún tiene mi esencia)',
 ].join('\n');
@@ -230,7 +234,10 @@ function type() {
 
 function onTypingDone() {
   typingDone = true;
-  // Mostrar celebración inmediatamente aunque el audio siga
+  // Mostrar firma con fade
+  const sig = document.getElementById('letter-signature');
+  if (sig) sig.classList.add('show');
+  // Mostrar celebración
   const cel = document.getElementById('celebration');
   setTimeout(() => {
     cel.classList.add('show');
@@ -425,21 +432,21 @@ function initMediaPlayer() {
 
 
 const EMOTIONAL_PARAGRAPHS = [
-  `Esto fue parte de la terapia, y que tú siguieras leyendo te hace <em class="hl">masoquista</em>, eché.`,
+    `Esto fue parte de la terapia, y que tú siguieras leyendo te hace <em class="hl">masoquista</em>, eché.`,
+    
+  `No sé si vayas a leer esto o si <em class="hl">preferiste olvidarme</em>. Me hubiera gustado decir algo en ese momento, pero me ganó el <em class="hl-key">dolor</em>, acompañado de <em class="hl-key">ira</em> al sentir todo desmoronarse. Sigo confuso; no entiendo cómo pudiste decirme que querías <em class="hl">casarte conmigo</em> y, al día siguiente, <em class="hl-key">cortar la relación</em>. Irónicamente, repetiste conmigo lo que te hicieron a ti.`,
 
-  `Me hubiera gustado decir algo en ese momento, pero me ganó el <em class="hl-key">dolor</em>, acompañado de <em class="hl-key">ira</em> al sentir todo desmoronarse. Sigo confuso; no entiendo cómo pudiste decirme que querías <em class="hl">casarte conmigo</em> y, al día siguiente, <em class="hl-key">cortar la relación</em>.`,
+  `Sé que no fui perfecto y que esa última semana fue complicada, pero realmente quería que estuvieras en ese momento tan <em class="hl">vulnerable</em>, así como yo lo estuve para ti antes. Porque sí, estaba <em class="hl">mejorando por ambos</em>, porque tú eras <em class="hl-key">parte de mi futuro</em>. Solo quería que me abrazaras y me dijeras: <em class="hl">"Eres Dios, amor, tú puedes"</em>. Siento que te aburriste de estar conmigo, que querías salir a rumbear y tener experiencias fuertes antes de aceptar que creciste.`,
 
-  `Sé que no fui perfecto, pero realmente quería que estuvieras en ese momento tan <em class="hl">vulnerable</em>, así como yo lo estuve para ti antes. Porque sí, estaba <em class="hl">mejorando por ambos</em>, porque tú eras <em class="hl-key">parte de mi futuro</em>. Siento que te aburriste de estar conmigo, que querías salir a rumbear y tener experiencias fuertes.`,
+  `En mis recuerdos suelen aparecer lo que creo que eran tus excusas para terminar conmigo, a las cuales siempre les daba una solución. Ese mismo día, las cartas me dijeron que había <em class="hl-key">alguien más en la relación</em>, con quien decidiste irte. Creo que ya sabes quién pienso que es, porque el día que te dije que me causaba celos y que me encontraba enfermo, preferiste irte con él, y casualmente se quedaron solos los dos. Y más aún cuando, un día de <em class="hl">melancolía</em>, vi tu foto en un espejo lleno de stickers, junto a grafitis, sumado a la conexión de interés que tenían.`,
 
-  `En mis recuerdos suelen aparecer lo que creo que eran tus excusas para terminar conmigo, a las cuales siempre les daba una solución. Ese mismo día, las cartas me dijeron que había <em class="hl-key">alguien más en la relación</em>, con quien decidiste irte. Creo que ya sabes quién pienso que es, y más cuando un día de <em class="hl">melancolía</em> vi tu foto en un espejo lleno de stickers, junto a grafitis, sumado a la conexión que tenían.`,
+  `Pero aun así, sabes que soy <em class="hl">necio</em>. Decidí dejar esa duda en el aire, porque <em class="hl-key">la mujer que amo</em> no sería así. Me dolió que traicionaras mi confianza al contar algo tan delicado como mi sentir, cuando te confié eso únicamente a ti. Yo nunca solté palabra sobre tu fragilidad ni sobre tus razones para sentirte agobiada con la vida misma. Todo eso hizo que me llenara de <em class="hl-key">odio</em> hacia ti. Me parecía imposible pensar que quien yo llamaba <em class="hl">mi osita</em> me haría algo así.`,
 
-  `Pero aun así, sabes que soy <em class="hl">necio</em>. Decidí dejar esa duda en el aire, porque <em class="hl-key">la mujer que amo</em> no sería así. Me dolió que traicionaras mi confianza al contar algo tan delicado como mi sentir, cuando yo nunca solté palabra sobre tu fragilidad. Todo eso hizo que me llenara de <em class="hl-key">odio</em> hacia ti. Me parecía imposible pensar que quien yo llamaba <em class="hl">mi osita</em> me haría algo así.`,
+  `Tus últimas palabras las tomé como el <em class="hl">"típico monólogo de chica"</em>, pero no me dejé caer, porque ya había decidido mejorar. Aun después de todo ese odio, <em class="hl">el fuego se apaga</em>; y fue ahí cuando mi <em class="hl">corazón de pollo</em> ansiaba que un día aparecieras diciéndome que <em class="hl-key">lo sentías</em>.`,
 
-  `Tus últimas palabras las tomé como el "típico monólogo de chica", pero no me dejé caer, porque ya había decidido mejorar. Aun después de todo ese odio, <em class="hl">el fuego se apaga</em>; y fue ahí cuando mi <em class="hl">corazón de pollo</em> ansiaba que un día aparecieras diciéndome que <em class="hl-key">lo sentías</em>.`,
+  `Porque tal vez pienses que no, pero <em class="hl-key">realmente te extraño</em>, aun después de lo ocurrido. Es verdad que <em class="hl-key">aún sigo enamorado</em> de tu <em class="hl">sonrisa que enseña tus encías</em>. Aún siento un leve cosquilleo cuando recuerdo tus <em class="hl">ruidosas carcajadas</em>; quedaron plasmados en mí nuestros chistes internos. Todavía vive en mí la emoción de <em class="hl-key">enamorarme de todo tu cuerpo</em> cuando te veía venir a la lejanía, acompañado de ese <em class="hl">saludo de mano errático</em>.`,
 
-  `Porque tal vez pienses que no, pero es verdad que <em class="hl-key">aún sigo enamorado</em> de tu <em class="hl">sonrisa que enseña tus encías</em>. Aún siento un leve cosquilleo cuando recuerdo tus <em class="hl">ruidosas carcajadas</em>. Todavía vive en mí la emoción de <em class="hl-key">enamorarme de todo tu cuerpo</em> cuando te veía venir a la lejanía.`,
-
-  `Y sí, ahora es diferente, porque tal vez, sin quererlo, <em class="hl-key">me lastimaste</em>. Pero sé que los humanos podemos cometer <em class="hl">errores</em>, especialmente con quienes <em class="hl">apreciamos</em>.`,
+  `Y sí, ahora es diferente, porque tal vez, sin quererlo, <em class="hl-key">me lastimaste</em>. Pero sé que los humanos podemos cometer <em class="hl">errores</em>, especialmente con quienes apreciamos. Por esa misma razón es que decido escribir esto, tanto para mí como para ti. Si te parece bien la idea de <em class="hl">enmendar lo que se fracturó</em>, lo único que te pido es una charla sincera para conocer cómo fue tu parte de la historia. Estaré esperando un mensaje entre hoy <em class="hl">27 de junio</em> y mañana <em class="hl">28 de junio</em>; si no llega, lo entenderé como que es mejor mantener la distancia.`,
 
   `Por eso quiero decirte que <em class="hl-declaration">sí</em>,\n<em class="hl-declaration">aún te amo</em>, <em class="hl-name">Gabriela</em>.`,
 ];
