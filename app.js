@@ -4,6 +4,53 @@
 
 
 // ─────────────────────────────────────────────────────────
+//  PANTALLA DE PRIVACIDAD
+// ─────────────────────────────────────────────────────────
+const privacyCanvas = document.getElementById('privacy-stars');
+const pCtx          = privacyCanvas.getContext('2d');
+
+function resizePrivacyStars() {
+  privacyCanvas.width  = innerWidth;
+  privacyCanvas.height = innerHeight;
+}
+resizePrivacyStars();
+
+const P_STARS = Array.from({ length: 160 }, () => ({
+  x:     Math.random() * innerWidth,
+  y:     Math.random() * innerHeight,
+  r:     Math.random() * 1.2 + 0.15,
+  phase: Math.random() * Math.PI * 2,
+  speed: Math.random() * 0.014 + 0.003,
+}));
+
+let privacyStarsRunning = true;
+
+(function animatePrivacyStars() {
+  pCtx.clearRect(0, 0, privacyCanvas.width, privacyCanvas.height);
+  P_STARS.forEach(s => {
+    s.phase += s.speed;
+    const a = 0.15 + 0.7 * (0.5 + 0.5 * Math.sin(s.phase));
+    pCtx.beginPath();
+    pCtx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+    pCtx.fillStyle = `rgba(255,255,255,${a})`;
+    pCtx.fill();
+  });
+  if (privacyStarsRunning) requestAnimationFrame(animatePrivacyStars);
+})();
+
+document.getElementById('privacy-btn').addEventListener('click', () => {
+  const screen = document.getElementById('privacy-screen');
+  screen.classList.add('gone');
+  privacyStarsRunning = false;
+  // Eliminar del DOM tras la transición para no interferir
+  screen.addEventListener('transitionend', () => screen.remove(), { once: true });
+});
+
+addEventListener('resize', resizePrivacyStars);
+
+
+
+// ─────────────────────────────────────────────────────────
 //  STARS
 // ─────────────────────────────────────────────────────────
 const starsCanvas = document.getElementById('stars-c');
