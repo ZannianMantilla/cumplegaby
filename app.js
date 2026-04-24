@@ -1,106 +1,124 @@
 // ═══════════════════════════════════════════════════════════
-//  app.js — Carta para Reboltosa
+//  app.js — Carta para Reboltosa  (optimizado)
 // ═══════════════════════════════════════════════════════════
 
+// ─────────────────────────────────────────────────────────
+//  UTILIDAD: resize unificado (debounced, un solo listener)
+// ─────────────────────────────────────────────────────────
+const resizeCallbacks = [];
+let   resizeTimer = null;
+
+addEventListener('resize', () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(() => {
+    resizeCallbacks.forEach(fn => fn());
+  }, 120); // 120ms debounce — nadie nota la diferencia en canvas
+});
+
+function onResize(fn) { resizeCallbacks.push(fn); fn(); } // registra y ejecuta ya
+
 
 // ─────────────────────────────────────────────────────────
-//  PANTALLA DE PRIVACIDAD
+//  UTILIDAD: pausa global cuando la pestaña va a background
 // ─────────────────────────────────────────────────────────
-const privacyCanvas = document.getElementById('privacy-stars');
-const pCtx          = privacyCanvas.getContext('2d');
+const pausables = []; // { pause, resume }
+document.addEventListener('visibilitychange', () => {
+  pausables.forEach(p => document.hidden ? p.pause() : p.resume());
+});
 
-function resizePrivacyStars() {
-  privacyCanvas.width  = innerWidth;
-  privacyCanvas.height = innerHeight;
-}
-resizePrivacyStars();
 
-const P_STARS = Array.from({ length: 160 }, () => ({
-  x:     Math.random() * innerWidth,
-  y:     Math.random() * innerHeight,
-  r:     Math.random() * 1.2 + 0.15,
-  phase: Math.random() * Math.PI * 2,
-  speed: Math.random() * 0.014 + 0.003,
-}));
+// ─────────────────────────────────────────────────────────
+//  FÁBRICA DE CANVAS DE ESTRELLAS (reutilizable)
+//  Retorna { stop } para cancelar el loop cuando ya no se necesita
+// ─────────────────────────────────────────────────────────
+function makeStarField(canvas, count, color, throttle) {
+  // throttle = 1 → 60fps, 2 → 30fps (suficiente para estrellas ambientales)
+  const ctx = canvas.getContext('2d', { alpha: true });
 
-let privacyStarsRunning = true;
+  function resize() { canvas.width = innerWidth; canvas.height = innerHeight; }
+  onResize(resize);
 
-(function animatePrivacyStars() {
-  pCtx.clearRect(0, 0, privacyCanvas.width, privacyCanvas.height);
-  P_STARS.forEach(s => {
-    s.phase += s.speed;
-    const a = 0.15 + 0.7 * (0.5 + 0.5 * Math.sin(s.phase));
-    pCtx.beginPath();
-    pCtx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
-    pCtx.fillStyle = `rgba(255,255,255,${a})`;
-    pCtx.fill();
+  const stars = Array.from({ length: count }, () => ({
+    x:     Math.random() * canvas.width,
+    y:     Math.random() * canvas.height,
+    r:     Math.random() * 1.3 + 0.15,
+    phase: Math.random() * Math.PI * 2,
+    speed: Math.random() * 0.014 + 0.003,
+  }));
+
+  let rafId   = null;
+  let running = false;
+  let paused  = false;
+  let frame   = 0;
+
+  function tick() {
+    if (!running) return;
+    rafId = requestAnimationFrame(tick);
+    frame++;
+    if (frame % throttle !== 0) return; // frameskip para 30fps
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    stars.forEach(s => {
+      s.phase += s.speed;
+      const a = 0.15 + 0.75 * (0.5 + 0.5 * Math.sin(s.phase));
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+      ctx.fillStyle = color.replace('A', a.toFixed(2)); // e.g. "rgba(255,255,255,A)"
+      ctx.fill();
+    });
+  }
+
+  pausables.push({
+    pause:  () => { if (running) { cancelAnimationFrame(rafId); rafId = null; paused = true; } },
+    resume: () => { if (paused && running) { paused = false; tick(); } },
   });
-  if (privacyStarsRunning) requestAnimationFrame(animatePrivacyStars);
-})();
+
+  return {
+    start() { if (!running) { running = true; tick(); } },
+    stop()  { running = false; cancelAnimationFrame(rafId); rafId = null;
+              ctx.clearRect(0, 0, canvas.width, canvas.height); },
+  };
+}
+
+
+// ─────────────────────────────────────────────────────────
+//  ESTRELLAS — PANTALLA DE PRIVACIDAD  (80 estrellas, 30fps)
+// ─────────────────────────────────────────────────────────
+const privacyStars = makeStarField(
+  document.getElementById('privacy-stars'), 80, 'rgba(255,255,255,A)', 2
+);
+privacyStars.start();
 
 document.getElementById('privacy-btn').addEventListener('click', () => {
   const screen = document.getElementById('privacy-screen');
   screen.classList.add('gone');
-  privacyStarsRunning = false;
-  // Eliminar del DOM tras la transición para no interferir
+  privacyStars.stop();
   screen.addEventListener('transitionend', () => screen.remove(), { once: true });
 });
 
-addEventListener('resize', resizePrivacyStars);
 
+// ─────────────────────────────────────────────────────────
+//  ESTRELLAS — INTRO  (100 estrellas, 30fps)
+// ─────────────────────────────────────────────────────────
+const introStars = makeStarField(
+  document.getElementById('stars-c'), 100, 'rgba(255,255,255,A)', 2
+);
+introStars.start();
 
 
 // ─────────────────────────────────────────────────────────
-//  STARS
-// ─────────────────────────────────────────────────────────
-const starsCanvas = document.getElementById('stars-c');
-const sCtx        = starsCanvas.getContext('2d');
-let   starsRunning = true;
-
-function resizeStars() {
-  starsCanvas.width  = innerWidth;
-  starsCanvas.height = innerHeight;
-}
-resizeStars();
-addEventListener('resize', resizeStars);
-
-const STARS = Array.from({ length: 230 }, () => ({
-  x:     Math.random() * innerWidth,
-  y:     Math.random() * innerHeight,
-  r:     Math.random() * 1.4 + 0.2,
-  phase: Math.random() * Math.PI * 2,
-  speed: Math.random() * 0.016 + 0.004,
-}));
-
-(function animateStars() {
-  sCtx.clearRect(0, 0, starsCanvas.width, starsCanvas.height);
-  STARS.forEach(s => {
-    s.phase += s.speed;
-    const a = 0.2 + 0.8 * (0.5 + 0.5 * Math.sin(s.phase));
-    sCtx.beginPath();
-    sCtx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
-    sCtx.fillStyle = `rgba(255,255,255,${a})`;
-    sCtx.fill();
-  });
-  if (starsRunning) requestAnimationFrame(animateStars);
-})();
-
-
-// ─────────────────────────────────────────────────────────
-//  CONFETTI
+//  CONFETTI  (solo corre cuando se lanza, se detiene solo)
 // ─────────────────────────────────────────────────────────
 const cfCanvas = document.getElementById('cf-canvas');
-const cfCtx    = cfCanvas.getContext('2d');
-let   particles = [];
-
-function resizeConfetti() { cfCanvas.width = innerWidth; cfCanvas.height = innerHeight; }
-resizeConfetti();
-addEventListener('resize', resizeConfetti);
+const cfCtx    = cfCanvas.getContext('2d', { alpha: true });
+onResize(() => { cfCanvas.width = innerWidth; cfCanvas.height = innerHeight; });
 
 const CF_COLORS = ['#ff6b6b','#ffa36c','#ffd93d','#6bcb77','#4d96ff','#d0a8ff','#ff9ff3','#ffffff','#c9963a','#80ffdb'];
+let   cfRafId   = null;
+let   particles = [];
 
 function launchConfetti() {
-  particles = Array.from({ length: 200 }, () => ({
+  particles = Array.from({ length: 160 }, () => ({  // 200→160
     x:      Math.random() * innerWidth,
     y:      -15 - Math.random() * 30,
     vx:     (Math.random() - 0.5) * 7,
@@ -114,15 +132,20 @@ function launchConfetti() {
     gravity: 0.09 + Math.random() * 0.06,
     circle: Math.random() < 0.3,
   }));
+  cancelAnimationFrame(cfRafId);
   animateConfetti();
 }
+
 function animateConfetti() {
   cfCtx.clearRect(0, 0, cfCanvas.width, cfCanvas.height);
   let alive = false;
-  particles.forEach(p => {
+  for (const p of particles) {
     p.x += p.vx; p.y += p.vy; p.vy += p.gravity; p.rot += p.rv;
-    if (p.y < cfCanvas.height + 20) { alive = true; p.alpha = Math.max(0, p.alpha - 0.004); }
-    else p.alpha = 0;
+    if (p.y < cfCanvas.height + 20) {
+      alive   = true;
+      p.alpha = Math.max(0, p.alpha - 0.0045);
+    } else p.alpha = 0;
+    if (p.alpha <= 0) continue;
     cfCtx.save();
     cfCtx.translate(p.x, p.y);
     cfCtx.rotate(p.rot * Math.PI / 180);
@@ -131,19 +154,20 @@ function animateConfetti() {
     if (p.circle) { cfCtx.beginPath(); cfCtx.arc(0, 0, p.w / 2, 0, Math.PI * 2); cfCtx.fill(); }
     else cfCtx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
     cfCtx.restore();
-  });
-  if (alive) requestAnimationFrame(animateConfetti);
+  }
+  if (alive) cfRafId = requestAnimationFrame(animateConfetti);
 }
 
 
 // ─────────────────────────────────────────────────────────
-//  BURBUJAS
+//  BURBUJAS  (CSS puro, ya son GPU-composited)
 // ─────────────────────────────────────────────────────────
 const BUBBLE_COLORS = ['#ff6b6b','#ffa36c','#ffd93d','#6bcb77','#4d96ff','#d0a8ff','#ff9ff3','#80ffdb'];
 
 function spawnBubbles() {
   const page = document.getElementById('page');
-  for (let i = 0; i < 24; i++) {
+  const frag = document.createDocumentFragment(); // una sola inserción al DOM
+  for (let i = 0; i < 18; i++) {                 // 24→18
     const b  = document.createElement('div');
     b.className = 'bub';
     const sz = Math.random() * 10 + 4;
@@ -151,17 +175,18 @@ function spawnBubbles() {
       `left:${Math.random() * 100}%`,
       `width:${sz}px`, `height:${sz}px`,
       `background:${BUBBLE_COLORS[i % BUBBLE_COLORS.length]}`,
-      `opacity:${(Math.random() * 0.38 + 0.12).toFixed(2)}`,
+      `opacity:${(Math.random() * 0.35 + 0.1).toFixed(2)}`,
       `animation-duration:${(Math.random() * 10 + 7).toFixed(1)}s`,
       `animation-delay:${(Math.random() * 7).toFixed(1)}s`,
     ].join(';');
-    page.appendChild(b);
+    frag.appendChild(b);
   }
+  page.appendChild(frag);
 }
 
 
 // ─────────────────────────────────────────────────────────
-//  MENSAJE Y RENDERIZADO DE CARTA
+//  CARTA — precomputar HTML escapado una sola vez
 // ─────────────────────────────────────────────────────────
 const FULL_MSG = [
   'SUPER FELIZ CUMPLEAÑOS, REBOLTOSA.',
@@ -178,15 +203,15 @@ const FULL_MSG = [
   '',
   'Muchos éxitos con tu futura empresa, señorita Emprendimientos.',
   '',
-    'No olvides darte un abrazo a ti misma por lo bien que lo has hecho.',
+  'No olvides darte un abrazo a ti misma por lo bien que lo has hecho.',
   '',
-    '-Te quiere el estrelloso super ñero ( 💜 ).',
+  '-Te quiere el estrelloso super ñero ( 💜 ).',
   '',
   '(sí, usé autocorrector para que quedara bonito; lo bueno es que aún tiene mi esencia)',
 ].join('\n');
 
 const FIRST_LINE_END = FULL_MSG.indexOf('\n');
-const FIRST_STYLE = [
+const FIRST_STYLE    = [
   'font-weight:700','font-size:1.72rem','line-height:2.4rem',
   'display:block','margin-bottom:0.35rem',
   'background:linear-gradient(135deg,#c9963a,#de5a0a)',
@@ -195,85 +220,73 @@ const FIRST_STYLE = [
 
 function escHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
-function buildHTML(n) {
-  const capped    = Math.min(n, FULL_MSG.length);
-  const firstPart = FULL_MSG.substring(0, Math.min(capped, FIRST_LINE_END));
-  const restPart  = capped > FIRST_LINE_END ? FULL_MSG.substring(FIRST_LINE_END, capped) : '';
-  let html = `<span style="${FIRST_STYLE}">${escHtml(firstPart)}</span>`;
-  if (restPart) html += escHtml(restPart).replace(/\n/g, '<br>');
-  return html;
-}
+// Precomputado una sola vez al cargar
+const ESC_FIRST = escHtml(FULL_MSG.substring(0, FIRST_LINE_END));
+const ESC_REST  = escHtml(FULL_MSG.substring(FIRST_LINE_END)).replace(/\n/g, '<br>');
 
-function setDisplay(n, cursor = true) {
-  const body = document.getElementById('letter-body');
-  const c    = cursor ? '<span class="cursor-blink"></span>' : '';
-  body.innerHTML = buildHTML(n) + c;
+// Mapeo fuente-char → REST-html-char (necesario porque \n→<br> alarga el string)
+// Se construye una vez: array de posiciones en ESC_REST para cada char fuente
+const REST_MAP = (() => {
+  const src  = FULL_MSG.substring(FIRST_LINE_END);
+  const map  = [0]; // map[i] = cuántos chars html hay antes del i-ésimo char fuente
+  let   html = 0;
+  for (let i = 0; i < src.length; i++) {
+    html += src[i] === '\n' ? 4 : 1; // \n→<br> = 4 chars
+    map.push(html);
+  }
+  return map;
+})();
+
+const letterBody = document.getElementById('letter-body');
+
+function setDisplay(n, cursor) {
+  const capped  = Math.min(n, FULL_MSG.length);
+  const fLen    = Math.min(capped, FIRST_LINE_END);
+  const rLen    = Math.max(0, capped - FIRST_LINE_END);
+  const first   = ESC_FIRST.substring(0, fLen);
+  const rest    = rLen > 0 ? ESC_REST.substring(0, REST_MAP[rLen]) : '';
+  const c       = cursor ? '<span class="cursor-blink"></span>' : '';
+  letterBody.innerHTML = `<span style="${FIRST_STYLE}">${first}</span>${rest}${c}`;
 }
 
 
 // ─────────────────────────────────────────────────────────
-//  AUDIO DE FONDO
-//  Pon tu archivo como background.mp3 en la misma carpeta.
+//  AUDIO DE FONDO (carta)
 // ─────────────────────────────────────────────────────────
-const bgAudio = document.getElementById('bg-audio');
+const bgAudio  = document.getElementById('bg-audio');
 bgAudio.volume = 0.55;
 
-let audioDone  = false;
+let audioDone = false;
 let typingDone = false;
 
-function checkBothDone() {
-  if (audioDone && typingDone) revealFinalButtons();
-}
-
-function startAudio() {
-  bgAudio.play().catch(() => {
-    audioDone = true;
-    checkBothDone();
-    hideAudioSkip();
-  });
-}
-
-function skipAudio() {
-  if (audioDone) return;
-  bgAudio.pause();
-  bgAudio.currentTime = 0;
-  audioDone = true;
-  hideAudioSkip();
-  checkBothDone();
-}
+function checkBothDone() { if (audioDone && typingDone) revealFinalButtons(); }
 
 function hideAudioSkip() {
   const btn = document.getElementById('skip-audio-btn');
   if (btn) btn.classList.add('done');
 }
 
-bgAudio.addEventListener('ended', () => {
-  audioDone = true;
-  hideAudioSkip();
-  checkBothDone();
-});
+function startAudio() {
+  bgAudio.play().catch(() => { audioDone = true; checkBothDone(); hideAudioSkip(); });
+}
+function skipAudio() {
+  if (audioDone) return;
+  bgAudio.pause(); bgAudio.currentTime = 0;
+  audioDone = true; hideAudioSkip(); checkBothDone();
+}
 
-// Si el audio falla por archivo no encontrado
-bgAudio.addEventListener('error', () => {
-  audioDone = true;
-  hideAudioSkip();
-  checkBothDone();
-});
+bgAudio.addEventListener('ended', () => { audioDone = true; hideAudioSkip(); checkBothDone(); });
+bgAudio.addEventListener('error', () => { audioDone = true; hideAudioSkip(); checkBothDone(); });
 
 
 // ─────────────────────────────────────────────────────────
-//  TYPING ANIMADO
+//  TYPING — usa setDisplay precomputado
 // ─────────────────────────────────────────────────────────
 let typingPos    = 0;
 let typingActive = false;
 let skipNow      = false;
 
-function startTyping() {
-  typingActive = true;
-  skipNow      = false;
-  setDisplay(0, true);
-  type();
-}
+function startTyping() { typingActive = true; skipNow = false; setDisplay(0, true); type(); }
 
 function type() {
   if (skipNow || !typingActive) return;
@@ -286,7 +299,6 @@ function type() {
   }
   typingPos++;
   setDisplay(typingPos, true);
-
   const ch    = FULL_MSG[typingPos - 1];
   const delay = (ch === '.' || ch === ',' || ch === ';') ? 90
               : (ch === '!' || ch === '?')               ? 148
@@ -297,23 +309,16 @@ function type() {
 
 function onTypingDone() {
   typingDone = true;
-  // Mostrar firma con fade
   const sig = document.getElementById('letter-signature');
   if (sig) sig.classList.add('show');
-  // Mostrar celebración
   const cel = document.getElementById('celebration');
-  setTimeout(() => {
-    cel.classList.add('show');
-    setTimeout(launchConfetti, 350);
-  }, 700);
+  setTimeout(() => { cel.classList.add('show'); setTimeout(launchConfetti, 350); }, 700);
   checkBothDone();
 }
 
 function skipAll() {
   if (!typingActive) return;
-  skipNow      = true;
-  typingActive = false;
-  typingPos    = FULL_MSG.length;
+  skipNow = true; typingActive = false; typingPos = FULL_MSG.length;
   setDisplay(FULL_MSG.length, false);
   document.getElementById('skip-btn').style.display = 'none';
   onTypingDone();
@@ -324,23 +329,18 @@ function skipAll() {
 //  BOTONES FINALES
 // ─────────────────────────────────────────────────────────
 function revealFinalButtons() {
-  const btns = document.getElementById('final-btns');
-  btns.classList.remove('hidden');
+  document.getElementById('final-btns').classList.remove('hidden');
 }
 
 
 // ─────────────────────────────────────────────────────────
-//  PARTÍCULAS DE TERAPIA (polvo de estrellas lento)
+//  PARTÍCULAS DE TERAPIA  (40 partículas, 30fps)
 // ─────────────────────────────────────────────────────────
 const therapyCanvas = document.getElementById('therapy-canvas');
-const tCtx          = therapyCanvas.getContext('2d');
-let   therapyRunning = false;
+const tCtx          = therapyCanvas.getContext('2d', { alpha: true });
+onResize(() => { therapyCanvas.width = innerWidth; therapyCanvas.height = innerHeight; });
 
-function resizeTherapy() { therapyCanvas.width = innerWidth; therapyCanvas.height = innerHeight; }
-resizeTherapy();
-addEventListener('resize', resizeTherapy);
-
-const T_PARTICLES = Array.from({ length: 70 }, () => ({
+const T_PARTICLES = Array.from({ length: 40 }, () => ({  // 70→40
   x:     Math.random() * innerWidth,
   y:     Math.random() * innerHeight,
   r:     Math.random() * 1.0 + 0.2,
@@ -350,76 +350,76 @@ const T_PARTICLES = Array.from({ length: 70 }, () => ({
   phase: Math.random() * Math.PI * 2,
 }));
 
+let tRafId      = null;
+let tRunning    = false;
+let tFrameCount = 0;
+
+pausables.push({
+  pause:  () => { cancelAnimationFrame(tRafId); tRafId = null; },
+  resume: () => { if (tRunning) animateTherapy(); },
+});
+
 function animateTherapy() {
+  tRafId = requestAnimationFrame(animateTherapy);
+  tFrameCount++;
+  if (tFrameCount % 2 !== 0) return; // 30fps
+
   tCtx.clearRect(0, 0, therapyCanvas.width, therapyCanvas.height);
-  T_PARTICLES.forEach(p => {
-    p.x    += p.vx;
-    p.y    += p.vy;
-    p.phase += 0.008;
+  for (const p of T_PARTICLES) {
+    p.x += p.vx; p.y += p.vy; p.phase += 0.008;
     const a = p.alpha * (0.6 + 0.4 * Math.sin(p.phase));
-    if (p.y < -5) p.y = therapyCanvas.height + 5;
-    if (p.x < -5) p.x = therapyCanvas.width  + 5;
-    if (p.x > therapyCanvas.width + 5) p.x = -5;
+    if (p.y < -5)                          p.y = therapyCanvas.height + 5;
+    if (p.x < -5 || p.x > therapyCanvas.width + 5) p.x = p.x < 0 ? therapyCanvas.width + 5 : -5;
     tCtx.beginPath();
     tCtx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-    tCtx.fillStyle = `rgba(200,190,255,${a})`;
+    tCtx.fillStyle = `rgba(200,190,255,${a.toFixed(2)})`;
     tCtx.fill();
-  });
-  if (therapyRunning) requestAnimationFrame(animateTherapy);
+  }
+}
+
+function stopTherapyParticles() {
+  tRunning = false;
+  cancelAnimationFrame(tRafId);
+  tRafId = null;
+  tCtx.clearRect(0, 0, therapyCanvas.width, therapyCanvas.height);
 }
 
 
 // ─────────────────────────────────────────────────────────
-//  SECCIÓN TERAPIA — apertura y formulario
+//  SECCIÓN TERAPIA
 // ─────────────────────────────────────────────────────────
 const VALID_DATE = '2026-01-29';
 
 document.getElementById('btn-therapy').addEventListener('click', () => {
   const therapy = document.getElementById('therapy');
   therapy.classList.add('active');
-
-  // Asegurar que el contenido protegido esté oculto por DOM
   const textWrap = document.getElementById('therapy-text-wrap');
   textWrap.style.display = 'none';
   textWrap.classList.remove('visible');
-
-  // Detener el audio del cumpleaños si aún suena
-  if (!bgAudio.paused) {
-    bgAudio.pause();
-    bgAudio.currentTime = 0;
-  }
-
-  // Arrancar partículas de terapia
-  therapyRunning = true;
+  if (!bgAudio.paused) { bgAudio.pause(); bgAudio.currentTime = 0; }
+  tRunning = true;
   animateTherapy();
-
-  // Scroll al inicio dentro de la sección
   therapy.scrollTop = 0;
 });
 
 document.getElementById('btn-close').addEventListener('click', () => {
   window.close();
-  // Fallback por si window.close() está bloqueado
   document.body.innerHTML = '<div style="display:flex;height:100vh;align-items:center;justify-content:center;background:#06060f;font-family:Cormorant Garamond,serif;font-style:italic;color:rgba(255,255,255,0.3);font-size:1.2rem;">Puedes cerrar esta pestaña.</div>';
 });
 
 document.getElementById('therapy-submit').addEventListener('click', validateDate);
-document.getElementById('therapy-date').addEventListener('keydown', e => {
-  if (e.key === 'Enter') validateDate();
-});
+document.getElementById('therapy-date').addEventListener('keydown', e => { if (e.key === 'Enter') validateDate(); });
 
 function validateDate() {
   const input = document.getElementById('therapy-date');
   const error = document.getElementById('therapy-error');
-  const val   = input.value;
-
-  if (val === VALID_DATE) {
+  if (input.value === VALID_DATE) {
     error.classList.add('hidden');
     input.classList.remove('error-shake');
     showTherapyText();
   } else {
     input.classList.remove('error-shake');
-    void input.offsetWidth; // reflow para reiniciar animación
+    void input.offsetWidth;
     input.classList.add('error-shake');
     error.classList.remove('hidden');
   }
@@ -428,35 +428,29 @@ function validateDate() {
 function showTherapyText() {
   const formWrap = document.getElementById('therapy-form-wrap');
   formWrap.classList.add('out');
-
   const textWrap = document.getElementById('therapy-text-wrap');
   setTimeout(() => {
-    // Sacar el form del flujo del DOM para que no afecte el centrado del contenido
     formWrap.style.display = 'none';
-    // Restablecer display y mostrar el contenido protegido
     textWrap.style.display = '';
     textWrap.classList.remove('hidden');
     textWrap.classList.add('visible');
     initParaViewer();
     initMediaPlayer();
-    // Reproducir audio de fondo de la sección terapia
     startTherapyAudio();
   }, 500);
 }
 
+
 // ─────────────────────────────────────────────────────────
 //  AUDIO DE TERAPIA
 // ─────────────────────────────────────────────────────────
-const therapyAudio = new Audio('audio2.mp3');
+const therapyAudio  = new Audio('audio2.mp3');
 therapyAudio.loop   = true;
 therapyAudio.volume = 0;
 
 function startTherapyAudio() {
   therapyAudio.currentTime = 0;
-  therapyAudio.play().catch(() => {
-    // Autoplay bloqueado o archivo no encontrado — continuar sin audio
-  });
-  // Fade in suave desde 0 hasta 0.55 en ~1.5s
+  therapyAudio.play().catch(() => {});
   let vol = 0;
   const fadeIn = setInterval(() => {
     vol = Math.min(vol + 0.03, 0.55);
@@ -465,8 +459,9 @@ function startTherapyAudio() {
   }, 80);
 }
 
+
 // ─────────────────────────────────────────────────────────
-//  LIGHTBOX DE VIDEO
+//  LIGHTBOX DE VIDEO (terapia)
 // ─────────────────────────────────────────────────────────
 function initMediaPlayer() {
   const thumb    = document.getElementById('media-thumb');
@@ -475,28 +470,22 @@ function initMediaPlayer() {
   const backdrop = document.getElementById('lb-backdrop');
   const closeBtn = document.getElementById('lb-close');
 
-  function openLightbox() {
-    lightbox.classList.add('open');
-    video.play().catch(() => {});
-  }
-  function closeLightbox() {
-    lightbox.classList.remove('open');
-    video.pause();
-    video.currentTime = 0;
-  }
+  function openLightbox()  { lightbox.classList.add('open'); video.play().catch(() => {}); }
+  function closeLightbox() { lightbox.classList.remove('open'); video.pause(); video.currentTime = 0; }
 
   thumb.addEventListener('click', openLightbox);
   closeBtn.addEventListener('click', closeLightbox);
   backdrop.addEventListener('click', closeLightbox);
-  document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') closeLightbox();
-  });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); }, { passive: true });
 }
 
 
+// ─────────────────────────────────────────────────────────
+//  PÁRRAFOS DE TERAPIA
+// ─────────────────────────────────────────────────────────
 const EMOTIONAL_PARAGRAPHS = [
-    `Esto fue parte de la terapia, y que tú siguieras leyendo te hace <em class="hl">masoquista</em>, eché.`,
-    
+  `Esto fue parte de la terapia, y que tú siguieras leyendo te hace <em class="hl">masoquista</em>, eché.`,
+
   `No sé si vayas a leer esto o si <em class="hl">preferiste olvidarme</em>. Me hubiera gustado decir algo en ese momento, pero me ganó el <em class="hl-key">dolor</em>, acompañado de <em class="hl-key">ira</em> al sentir todo desmoronarse. Sigo confuso; no entiendo cómo pudiste decirme que querías <em class="hl">casarte conmigo</em> y, al día siguiente, <em class="hl-key">cortar la relación</em>. Irónicamente, repetiste conmigo lo que te hicieron a ti.`,
 
   `Sé que no fui perfecto y que esa última semana fue complicada, pero realmente quería que estuvieras en ese momento tan <em class="hl">vulnerable</em>, así como yo lo estuve para ti antes. Porque sí, estaba <em class="hl">mejorando por ambos</em>, porque tú eras <em class="hl-key">parte de mi futuro</em>. Solo quería que me abrazaras y me dijeras: <em class="hl">"Eres Dios, amor, tú puedes"</em>. Siento que te aburriste de estar conmigo, que querías salir a rumbear y tener experiencias fuertes antes de aceptar que creciste.`,
@@ -522,40 +511,35 @@ function initParaViewer() {
   const prevBtn = document.getElementById('para-prev');
   const nextBtn = document.getElementById('para-next');
 
-  // Crear dots
   dotsEl.innerHTML = '';
+  const frag = document.createDocumentFragment();
   EMOTIONAL_PARAGRAPHS.forEach((_, i) => {
     const d = document.createElement('div');
     d.className = 'dot' + (i === 0 ? ' active' : '');
-    d.addEventListener('click', () => goTo(i));
-    dotsEl.appendChild(d);
+    d.addEventListener('click', () => goTo(i), { passive: true });
+    frag.appendChild(d);
   });
+  dotsEl.appendChild(frag);
 
-  prevBtn.addEventListener('click', () => goTo(currentPara - 1));
-  nextBtn.addEventListener('click', () => goTo(currentPara + 1));
+  prevBtn.addEventListener('click', () => goTo(currentPara - 1), { passive: true });
+  nextBtn.addEventListener('click', () => goTo(currentPara + 1), { passive: true });
 
-  // Swipe en móvil
   let touchStartX = 0;
   const stage = document.getElementById('para-stage');
   stage.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; }, { passive: true });
   stage.addEventListener('touchend',   e => {
     const dx = e.changedTouches[0].clientX - touchStartX;
     if (Math.abs(dx) > 40) goTo(currentPara + (dx < 0 ? 1 : -1));
-  });
+  }, { passive: true });
 
   renderPara(0, false);
 }
 
 function goTo(index) {
-  const total = EMOTIONAL_PARAGRAPHS.length;
-  if (index < 0 || index >= total) return;
-
+  if (index < 0 || index >= EMOTIONAL_PARAGRAPHS.length) return;
   const paraEl = document.getElementById('para-text');
   paraEl.classList.add('fade-out');
-  setTimeout(() => {
-    currentPara = index;
-    renderPara(index, true);
-  }, 380);
+  setTimeout(() => { currentPara = index; renderPara(index, true); }, 380);
 }
 
 function renderPara(index, animated) {
@@ -566,9 +550,8 @@ function renderPara(index, animated) {
   const nextBtn = document.getElementById('para-next');
   const dotsEl  = document.getElementById('para-dots');
 
-  paraEl.innerHTML = EMOTIONAL_PARAGRAPHS[index].replace(/\n/g, '<br>');
-
-  paraEl.className = 'para-text';
+  paraEl.innerHTML  = EMOTIONAL_PARAGRAPHS[index].replace(/\n/g, '<br>');
+  paraEl.className  = 'para-text';
   if (index === 0)         paraEl.classList.add('is-intro');
   if (index === total - 1) paraEl.classList.add('is-final');
   if (animated) {
@@ -577,65 +560,35 @@ function renderPara(index, animated) {
   }
 
   indexEl.textContent = `${index + 1} / ${total}`;
-  prevBtn.disabled = index === 0;
-  nextBtn.disabled = index === total - 1;
+  prevBtn.disabled    = index === 0;
+  nextBtn.disabled    = index === total - 1;
 
-  dotsEl.querySelectorAll('.dot').forEach((d, i) => {
-    d.classList.toggle('active', i === index);
-  });
+  dotsEl.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('active', i === index));
 
-  // Mostrar botón continuar al llegar al último párrafo
   if (index === total - 1) {
     const wrap = document.getElementById('btn-continue-wrap');
-    if (wrap) {
-      setTimeout(() => wrap.classList.remove('hidden'), 500);
-    }
+    if (wrap) setTimeout(() => wrap.classList.remove('hidden'), 500);
   }
 }
 
 
 // ─────────────────────────────────────────────────────────
-//  SECCIÓN ELECCIÓN MUSICAL
+//  ESTRELLAS MUSICALES  (80 estrellas, 30fps)
 // ─────────────────────────────────────────────────────────
-const musicCanvas = document.getElementById('music-stars');
-const mCtx        = musicCanvas.getContext('2d');
+const musicStarField = makeStarField(
+  document.getElementById('music-stars'), 80, 'rgba(210,190,255,A)', 2
+);
 
-function resizeMusicStars() {
-  musicCanvas.width  = innerWidth;
-  musicCanvas.height = innerHeight;
-}
-resizeMusicStars();
-addEventListener('resize', resizeMusicStars);
 
-const M_STARS = Array.from({ length: 180 }, () => ({
-  x:     Math.random() * innerWidth,
-  y:     Math.random() * innerHeight,
-  r:     Math.random() * 1.2 + 0.15,
-  phase: Math.random() * Math.PI * 2,
-  speed: Math.random() * 0.012 + 0.003,
-}));
-
-let musicStarsRunning = false;
-
-function animateMusicStars() {
-  mCtx.clearRect(0, 0, musicCanvas.width, musicCanvas.height);
-  M_STARS.forEach(s => {
-    s.phase += s.speed;
-    const a = 0.1 + 0.55 * (0.5 + 0.5 * Math.sin(s.phase));
-    mCtx.beginPath();
-    mCtx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
-    mCtx.fillStyle = `rgba(210,190,255,${a})`;
-    mCtx.fill();
-  });
-  if (musicStarsRunning) requestAnimationFrame(animateMusicStars);
-}
-
+// ─────────────────────────────────────────────────────────
+//  BOTÓN CONTINUAR → sección musical
+// ─────────────────────────────────────────────────────────
 document.getElementById('btn-continue').addEventListener('click', () => {
-  // Detener audio de terapia con fade out suave
-  (function fadeOutTherapy() {
+  // Fade out del audio de terapia
+  (function fadeOut() {
     if (therapyAudio.volume > 0.05) {
       therapyAudio.volume = Math.max(0, therapyAudio.volume - 0.06);
-      setTimeout(fadeOutTherapy, 60);
+      setTimeout(fadeOut, 60);
     } else {
       therapyAudio.pause();
       therapyAudio.currentTime = 0;
@@ -643,30 +596,25 @@ document.getElementById('btn-continue').addEventListener('click', () => {
     }
   })();
 
-  // La sección musical ya tiene z-index:810 y fondo sólido #06040f.
-  // Activarla primero (invisible) y luego hacer fade-in cubre la terapia limpiamente.
+  // Detener partículas de terapia (ya no son visibles)
+  stopTherapyParticles();
+
   const ms      = document.getElementById('music-choice');
   const therapy = document.getElementById('therapy');
 
-  // 1. Mostrar la sección musical (aún opacity:0, pero cubre todo con su fondo)
   ms.style.opacity       = '0';
   ms.style.pointerEvents = 'none';
   ms.classList.add('active');
+  musicStarField.start();
 
-  musicStarsRunning = true;
-  animateMusicStars();
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    ms.style.opacity       = '1';
+    ms.style.pointerEvents = 'all';
+  }));
 
-  // 2. Fade in de la sección musical — oculta la terapia bajo su fondo
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      ms.style.opacity       = '1';
-      ms.style.pointerEvents = 'all';
-    });
-  });
-
-  // 3. Ocultar terapia del DOM tras la transición
   setTimeout(() => { therapy.style.display = 'none'; }, 1100);
 });
+
 
 // ─────────────────────────────────────────────────────────
 //  REPRODUCTORES DE VIDEOS MUSICALES
@@ -682,32 +630,31 @@ function initMusicVideo(videoId, overlayId) {
     video.play().catch(() => {});
   }
 
-  wrap.addEventListener('click', () => {
-    if (!overlay.classList.contains('hidden')) play();
-  });
-
-  // Volver a mostrar overlay al terminar
+  wrap.addEventListener('click', () => { if (!overlay.classList.contains('hidden')) play(); }, { passive: true });
   video.addEventListener('ended', () => {
     overlay.classList.remove('hidden');
-    video.controls = false;
+    video.controls    = false;
     video.currentTime = 0;
   });
 }
 
-// Se inicializan cuando la sección se vuelve visible
 document.getElementById('music-choice').addEventListener('transitionend', function init() {
   initMusicVideo('mv1', 'mv1-overlay');
   initMusicVideo('mv2', 'mv2-overlay');
   this.removeEventListener('transitionend', init);
 });
+
+
+// ─────────────────────────────────────────────────────────
+//  ORQUESTADOR PRINCIPAL
+// ─────────────────────────────────────────────────────────
 let siteOpened = false;
 
 document.getElementById('open-btn').addEventListener('click', () => {
   if (siteOpened) return;
   siteOpened = true;
 
-  // Apagar estrellas del intro
-  starsRunning = false;
+  introStars.stop(); // intro stars ya no hacen falta
 
   document.getElementById('intro').classList.add('gone');
   document.getElementById('page').classList.add('show');
@@ -716,9 +663,9 @@ document.getElementById('open-btn').addEventListener('click', () => {
   startAudio();
 
   setTimeout(() => {
-    document.getElementById('skip-btn').addEventListener('click', skipAll);
-    document.getElementById('letter-body').addEventListener('click', skipAll);
-    document.getElementById('skip-audio-btn').addEventListener('click', skipAudio);
+    document.getElementById('skip-btn').addEventListener('click', skipAll, { passive: true });
+    document.getElementById('letter-body').addEventListener('click', skipAll, { passive: true });
+    document.getElementById('skip-audio-btn').addEventListener('click', skipAudio, { passive: true });
     startTyping();
   }, 950);
 });
