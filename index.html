@@ -60,7 +60,8 @@
       <div id="letter-signature" class="letter-signature">
         <img src="firma.png" alt="firma" class="firma-img">
       </div>
-      <div class="skip-hint" id="skip-btn">toca para saltar →</div>
+      <div class="skip-hint" id="skip-btn">toca para saltar texto →</div>
+      <div class="skip-hint skip-audio-hint" id="skip-audio-btn">⏭ saltar audio</div>
       <div class="flourish">✦</div>
     </div>
 
@@ -145,6 +146,11 @@
       </div>
     </div>
 
+    <!-- Botón continuar hacia canciones — aparece al llegar al último párrafo -->
+    <div id="btn-continue-wrap" class="btn-continue-wrap hidden">
+      <button id="btn-continue" class="btn-continue-music">Continuar ✨</button>
+    </div>
+
   </div>
 
   <!-- Lightbox de video -->
@@ -156,6 +162,52 @@
     </div>
   </div>
 
+</div>
+
+<!-- ═══ SECCIÓN ELECCIÓN MUSICAL ═══ -->
+<div id="music-choice" class="music-choice-section">
+  <canvas id="music-stars"></canvas>
+
+  <div class="music-inner">
+    <p class="music-lead">Te dedico la primera canción,</p>
+    <p class="music-sub">pero es tu elección con cuál prefieres quedarte.</p>
+
+    <div class="music-grid">
+
+      <!-- Video 1 — Still Loving You (la dedicada) -->
+      <div class="music-card music-card--first">
+        <div class="music-card__badge">♪ Pienso en ti de esta manera. </div>
+        <div class="music-embed-wrap">
+          <video id="mv1" src="videodedicado.mp4" playsinline preload="metadata"></video>
+          <div class="mv-overlay" id="mv1-overlay">
+            <div class="mv-play-circle">&#9654;</div>
+            <span class="mv-play-label">Reproducir</span>
+          </div>
+        </div>
+        <div class="music-card__info">
+          <span class="music-song-title">Still Loving You</span>
+          <span class="music-artist">Scorpions</span>
+        </div>
+      </div>
+
+      <!-- Video 2 — Promises -->
+      <div class="music-card">
+        <div class="music-card__badge">♪ Lo entenderé.</div>
+        <div class="music-embed-wrap">
+          <video id="mv2" src="videopromises.mp4" playsinline preload="metadata"></video>
+          <div class="mv-overlay" id="mv2-overlay">
+            <div class="mv-play-circle">&#9654;</div>
+            <span class="mv-play-label">Reproducir</span>
+          </div>
+        </div>
+        <div class="music-card__info">
+          <span class="music-song-title">Promises</span>
+          <span class="music-artist">Megadeth</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
 </div>
 
 <script src="app.js"></script>

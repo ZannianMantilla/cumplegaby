@@ -227,20 +227,36 @@ function checkBothDone() {
 
 function startAudio() {
   bgAudio.play().catch(() => {
-    // Autoplay bloqueado o archivo no encontrado → continuar sin audio
     audioDone = true;
     checkBothDone();
+    hideAudioSkip();
   });
+}
+
+function skipAudio() {
+  if (audioDone) return;
+  bgAudio.pause();
+  bgAudio.currentTime = 0;
+  audioDone = true;
+  hideAudioSkip();
+  checkBothDone();
+}
+
+function hideAudioSkip() {
+  const btn = document.getElementById('skip-audio-btn');
+  if (btn) btn.classList.add('done');
 }
 
 bgAudio.addEventListener('ended', () => {
   audioDone = true;
+  hideAudioSkip();
   checkBothDone();
 });
 
 // Si el audio falla por archivo no encontrado
 bgAudio.addEventListener('error', () => {
   audioDone = true;
+  hideAudioSkip();
   checkBothDone();
 });
 
@@ -567,12 +583,123 @@ function renderPara(index, animated) {
   dotsEl.querySelectorAll('.dot').forEach((d, i) => {
     d.classList.toggle('active', i === index);
   });
+
+  // Mostrar botón continuar al llegar al último párrafo
+  if (index === total - 1) {
+    const wrap = document.getElementById('btn-continue-wrap');
+    if (wrap) {
+      setTimeout(() => wrap.classList.remove('hidden'), 500);
+    }
+  }
 }
 
 
 // ─────────────────────────────────────────────────────────
-//  ORQUESTADOR PRINCIPAL
+//  SECCIÓN ELECCIÓN MUSICAL
 // ─────────────────────────────────────────────────────────
+const musicCanvas = document.getElementById('music-stars');
+const mCtx        = musicCanvas.getContext('2d');
+
+function resizeMusicStars() {
+  musicCanvas.width  = innerWidth;
+  musicCanvas.height = innerHeight;
+}
+resizeMusicStars();
+addEventListener('resize', resizeMusicStars);
+
+const M_STARS = Array.from({ length: 180 }, () => ({
+  x:     Math.random() * innerWidth,
+  y:     Math.random() * innerHeight,
+  r:     Math.random() * 1.2 + 0.15,
+  phase: Math.random() * Math.PI * 2,
+  speed: Math.random() * 0.012 + 0.003,
+}));
+
+let musicStarsRunning = false;
+
+function animateMusicStars() {
+  mCtx.clearRect(0, 0, musicCanvas.width, musicCanvas.height);
+  M_STARS.forEach(s => {
+    s.phase += s.speed;
+    const a = 0.1 + 0.55 * (0.5 + 0.5 * Math.sin(s.phase));
+    mCtx.beginPath();
+    mCtx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+    mCtx.fillStyle = `rgba(210,190,255,${a})`;
+    mCtx.fill();
+  });
+  if (musicStarsRunning) requestAnimationFrame(animateMusicStars);
+}
+
+document.getElementById('btn-continue').addEventListener('click', () => {
+  // Detener audio de terapia con fade out suave
+  (function fadeOutTherapy() {
+    if (therapyAudio.volume > 0.05) {
+      therapyAudio.volume = Math.max(0, therapyAudio.volume - 0.06);
+      setTimeout(fadeOutTherapy, 60);
+    } else {
+      therapyAudio.pause();
+      therapyAudio.currentTime = 0;
+      therapyAudio.volume = 0;
+    }
+  })();
+
+  // La sección musical ya tiene z-index:810 y fondo sólido #06040f.
+  // Activarla primero (invisible) y luego hacer fade-in cubre la terapia limpiamente.
+  const ms      = document.getElementById('music-choice');
+  const therapy = document.getElementById('therapy');
+
+  // 1. Mostrar la sección musical (aún opacity:0, pero cubre todo con su fondo)
+  ms.style.opacity       = '0';
+  ms.style.pointerEvents = 'none';
+  ms.classList.add('active');
+
+  musicStarsRunning = true;
+  animateMusicStars();
+
+  // 2. Fade in de la sección musical — oculta la terapia bajo su fondo
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      ms.style.opacity       = '1';
+      ms.style.pointerEvents = 'all';
+    });
+  });
+
+  // 3. Ocultar terapia del DOM tras la transición
+  setTimeout(() => { therapy.style.display = 'none'; }, 1100);
+});
+
+// ─────────────────────────────────────────────────────────
+//  REPRODUCTORES DE VIDEOS MUSICALES
+// ─────────────────────────────────────────────────────────
+function initMusicVideo(videoId, overlayId) {
+  const video   = document.getElementById(videoId);
+  const overlay = document.getElementById(overlayId);
+  const wrap    = overlay.closest('.music-embed-wrap');
+
+  function play() {
+    overlay.classList.add('hidden');
+    video.controls = true;
+    video.play().catch(() => {});
+  }
+
+  wrap.addEventListener('click', () => {
+    if (!overlay.classList.contains('hidden')) play();
+  });
+
+  // Volver a mostrar overlay al terminar
+  video.addEventListener('ended', () => {
+    overlay.classList.remove('hidden');
+    video.controls = false;
+    video.currentTime = 0;
+  });
+}
+
+// Se inicializan cuando la sección se vuelve visible
+document.getElementById('music-choice').addEventListener('transitionend', function init() {
+  initMusicVideo('mv1', 'mv1-overlay');
+  initMusicVideo('mv2', 'mv2-overlay');
+  this.removeEventListener('transitionend', init);
+});
 let siteOpened = false;
 
 document.getElementById('open-btn').addEventListener('click', () => {
@@ -591,6 +718,7 @@ document.getElementById('open-btn').addEventListener('click', () => {
   setTimeout(() => {
     document.getElementById('skip-btn').addEventListener('click', skipAll);
     document.getElementById('letter-body').addEventListener('click', skipAll);
+    document.getElementById('skip-audio-btn').addEventListener('click', skipAudio);
     startTyping();
   }, 950);
 });
