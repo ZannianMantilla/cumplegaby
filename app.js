@@ -393,6 +393,9 @@ const VALID_DATE = '2026-01-29';
 document.getElementById('btn-therapy').addEventListener('click', () => {
   const therapy = document.getElementById('therapy');
   therapy.classList.add('active');
+  // Reset: show warning, hide everything else
+  document.getElementById('therapy-warning').style.display = 'flex';
+  document.getElementById('therapy-form-wrap').style.display = 'none';
   const textWrap = document.getElementById('therapy-text-wrap');
   textWrap.style.display = 'none';
   textWrap.classList.remove('visible');
@@ -400,6 +403,26 @@ document.getElementById('btn-therapy').addEventListener('click', () => {
   tRunning = true;
   animateTherapy();
   therapy.scrollTop = 0;
+});
+
+// Botón de advertencia → muestra el formulario de fecha
+document.getElementById('therapy-warning-btn').addEventListener('click', () => {
+  const warning  = document.getElementById('therapy-warning');
+  const formWrap = document.getElementById('therapy-form-wrap');
+  warning.style.opacity  = '0';
+  warning.style.transform = 'translateY(-20px)';
+  warning.style.transition = 'opacity 0.6s ease,transform 0.6s ease';
+  setTimeout(() => {
+    warning.style.display = 'none';
+    formWrap.style.display = '';
+    formWrap.style.opacity = '0';
+    formWrap.style.transform = 'translateY(20px)';
+    formWrap.style.transition = 'opacity 0.8s ease,transform 0.8s ease';
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      formWrap.style.opacity  = '1';
+      formWrap.style.transform = 'translateY(0)';
+    }));
+  }, 620);
 });
 
 document.getElementById('btn-close').addEventListener('click', () => {
@@ -643,6 +666,152 @@ document.getElementById('music-choice').addEventListener('transitionend', functi
   initMusicVideo('mv2', 'mv2-overlay');
   this.removeEventListener('transitionend', init);
 });
+
+
+// ─────────────────────────────────────────────────────────
+//  SECCIÓN CIERRE — formulario + paginado de odio + imagen final
+// ─────────────────────────────────────────────────────────
+const CLOSURE_VALID_DATE = '2026-05-02';
+
+// Párrafos con HTML de resaltado (misma estructura que terapia)
+const CLOSURE_PARAGRAPHS = [
+  // 1 — título + primer párrafo
+  `<span style="display:block;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:0.82em;letter-spacing:0.2em;color:rgba(228, 87, 87, 0.93);text-transform:uppercase;margin-bottom:1.2rem;">actualización 2/05/2025 — soy escritor y como escritor te hablaré</span>El día de hoy estaba <em class="cl-hl">feliz</em>, me dije a mi mismo que todo saldría bien, que te abrazaría fuerte y te diría que te cuidaras mucho. Pero apenas te vi supe que <em class="cl-hl-key">la mujer de la cual me enamoré había muerto</em>. Se notaba en tu aspecto físico, en tu manera de actuar y en tu simple presencia. Para empezar, no sé por qué aceptaste la salida si ibas a <em class="cl-hl-key">comportarte conmigo de esa manera</em>, ignorándome en todo momento. Claro que se notó. Me pregunto qué se sentirá tratar como una <em class="cl-hl-fire">basura</em> a una persona que aún después de todo se preocupó porque <em class="cl-hl">te enfermaras por la lluvia</em>.`,
+
+  // 2
+  `Créeme que la <em class="cl-hl-key">decepción da lecciones</em>. Créeme que me demostraste lo realmente <em class="cl-hl-fire">dañada</em> que estás, y claro que lo sabía desde que fuimos pareja, pero <em class="cl-hl">quería cuidar y sanar eso de ti</em>. Créeme que esto me duele demasiado, pero…`,
+
+  // 3
+  `Si lucifer te mostró el cielo y tú decidiste <em class="cl-hl-key">permanecer en el infierno</em>, entonces no te asustes cuando te encuentres de cara con <em class="cl-hl-fire">satanás</em>. Porque yo ya no voy a permitir que me sigas <em class="cl-hl-key">faltando el respeto</em> de esa forma. Menos mal tú misma te quitaste de tu pedestal para convertirte en <em class="cl-hl-void">una más del montón</em>. Menos mal que tengo el suficiente <em class="cl-hl">amor propio</em> para no tener empatía por ti como tú no la tuviste por mí.`,
+
+  // 4 — coda fría
+  `Créeme que esto lo voy a recordar, sabes que cosas podria hacer en contra de ti pero me alegra, <em class="cl-hl-fire">Ser mejor de lo que tu eres</em>.`,
+];
+
+let closureCurrentPara = 0;
+
+// — Botón continuar desde la música → cierre
+document.getElementById('btn-music-final').addEventListener('click', () => {
+  ['mv1','mv2'].forEach(id => {
+    const v = document.getElementById(id);
+    if (v) { v.pause(); v.currentTime = 0; }
+  });
+  musicStarField.stop();
+
+  const music   = document.getElementById('music-choice');
+  const closure = document.getElementById('closure');
+
+  music.style.transition    = 'opacity 1.2s ease';
+  music.style.opacity       = '0';
+  music.style.pointerEvents = 'none';
+
+  closure.classList.add('active');
+  setTimeout(() => { music.style.display = 'none'; }, 1200);
+});
+
+// — Validación de fecha del cierre
+document.getElementById('closure-submit').addEventListener('click', validateClosureDate);
+document.getElementById('closure-date').addEventListener('keydown', e => {
+  if (e.key === 'Enter') validateClosureDate();
+});
+
+function validateClosureDate() {
+  const input = document.getElementById('closure-date');
+  const error = document.getElementById('closure-error');
+  if (input.value === CLOSURE_VALID_DATE) {
+    error.classList.add('hidden');
+    showClosureText();
+  } else {
+    input.classList.remove('error-shake');
+    void input.offsetWidth;
+    input.classList.add('error-shake');
+    error.classList.remove('hidden');
+  }
+}
+
+function showClosureText() {
+  const formWrap  = document.getElementById('closure-form-wrap');
+  const textWrap  = document.getElementById('closure-text-wrap');
+  formWrap.style.transition = 'opacity 0.6s ease,transform 0.6s ease';
+  formWrap.style.opacity    = '0';
+  formWrap.style.transform  = 'translateY(-20px)';
+  setTimeout(() => {
+    formWrap.style.display = 'none';
+    textWrap.classList.remove('hidden');
+    textWrap.classList.add('visible');
+    initClosureViewer();
+  }, 650);
+}
+
+// — Visor paginado del texto de odio
+function initClosureViewer() {
+  const total    = CLOSURE_PARAGRAPHS.length;
+  const dotsEl   = document.getElementById('closure-dots');
+  const prevBtn  = document.getElementById('closure-prev');
+  const nextBtn  = document.getElementById('closure-next');
+
+  dotsEl.innerHTML = '';
+  const frag = document.createDocumentFragment();
+  CLOSURE_PARAGRAPHS.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'closure-dot' + (i === 0 ? ' active' : '');
+    d.addEventListener('click', () => closureGoTo(i), { passive: true });
+    frag.appendChild(d);
+  });
+  dotsEl.appendChild(frag);
+
+  prevBtn.addEventListener('click', () => closureGoTo(closureCurrentPara - 1), { passive: true });
+  nextBtn.addEventListener('click', () => closureGoTo(closureCurrentPara + 1), { passive: true });
+
+  // Swipe táctil
+  let touchStartX = 0;
+  const stage = document.getElementById('closure-para-stage');
+  stage.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; }, { passive: true });
+  stage.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - touchStartX;
+    if (Math.abs(dx) > 40) closureGoTo(closureCurrentPara + (dx < 0 ? 1 : -1));
+  }, { passive: true });
+
+  closureRenderPara(0, false);
+}
+
+function closureGoTo(index) {
+  if (index < 0 || index >= CLOSURE_PARAGRAPHS.length) return;
+  const paraEl = document.getElementById('closure-para-text');
+  paraEl.classList.add('fade-out');
+  setTimeout(() => { closureCurrentPara = index; closureRenderPara(index, true); }, 380);
+}
+
+function closureRenderPara(index, animated) {
+  const total    = CLOSURE_PARAGRAPHS.length;
+  const paraEl   = document.getElementById('closure-para-text');
+  const indexEl  = document.getElementById('closure-para-index');
+  const prevBtn  = document.getElementById('closure-prev');
+  const nextBtn  = document.getElementById('closure-next');
+  const dotsEl   = document.getElementById('closure-dots');
+
+  paraEl.innerHTML = CLOSURE_PARAGRAPHS[index];
+  paraEl.className = 'closure-para-text';
+  if (index === total - 1) paraEl.classList.add('is-final');
+  if (animated) {
+    paraEl.classList.add('fade-in');
+    setTimeout(() => paraEl.classList.remove('fade-in'), 600);
+  }
+
+  indexEl.textContent = `${index + 1} / ${total}`;
+  prevBtn.disabled    = index === 0;
+  nextBtn.disabled    = index === total - 1;
+  dotsEl.querySelectorAll('.closure-dot').forEach((d, i) => d.classList.toggle('active', i === index));
+
+  // Al llegar al último párrafo revelar imagen final
+  if (index === total - 1) {
+    const imgEl = document.getElementById('closure-final-img');
+    if (imgEl && imgEl.classList.contains('hidden')) {
+      imgEl.classList.remove('hidden');
+      requestAnimationFrame(() => requestAnimationFrame(() => imgEl.classList.add('visible')));
+    }
+  }
+}
 
 
 // ─────────────────────────────────────────────────────────

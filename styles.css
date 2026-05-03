@@ -912,3 +912,323 @@ body{
 @media(max-width:480px){
   .music-inner{padding:2.5rem 0.85rem 4rem;gap:1.4rem}
 }
+
+/* ════════════════════════════════════════════
+   ADVERTENCIA DE TERAPIA
+════════════════════════════════════════════ */
+.therapy-warning-screen{
+  position:relative;z-index:3;
+  width:100%;min-height:100vh;
+  display:flex;align-items:center;justify-content:center;
+  padding:2rem clamp(1rem,4vw,1.5rem);
+}
+.therapy-warning-inner{
+  text-align:center;
+  display:flex;flex-direction:column;align-items:center;
+  gap:1.2rem;
+  max-width:460px;width:100%;
+  background:rgba(255,255,255,0.03);
+  border:1px solid rgba(255,255,255,0.09);
+  border-radius:20px;
+  padding:clamp(2rem,6vw,3.2rem) clamp(1.4rem,5vw,2.8rem);
+  backdrop-filter:blur(16px);
+  box-shadow:0 0 0 1px rgba(255,255,255,0.04) inset,0 32px 80px rgba(0,0,0,0.6);
+  animation:fadeUp 0.9s ease 0.2s both;
+}
+.therapy-warning-icon{font-size:clamp(2rem,7vw,2.6rem)}
+.therapy-warning-title{
+  font-family:'Cormorant Garamond',serif;
+  font-weight:500;font-style:italic;
+  font-size:clamp(1.5rem,5vw,2rem);
+  line-height:1.25;color:rgba(255,255,255,0.88);
+  letter-spacing:0.02em;
+}
+.therapy-warning-body{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(0.92rem,2.8vw,1.08rem);
+  color:rgba(255,255,255,0.56);
+  line-height:1.75;
+}
+.therapy-warning-divider{width:36px;height:1px;background:rgba(255,255,255,0.13)}
+.therapy-warning-btn{
+  margin-top:0.4rem;
+  padding:0.82rem 2.6rem;
+  background:rgba(255,255,255,0.06);
+  border:1.5px solid rgba(255,255,255,0.2);
+  border-radius:100px;
+  font-family:'Caveat',cursive;
+  font-size:clamp(1.05rem,3vw,1.25rem);
+  color:rgba(255,255,255,0.85);
+  cursor:pointer;
+  transition:all 0.28s ease;
+  backdrop-filter:blur(8px);
+  -webkit-tap-highlight-color:transparent;
+}
+.therapy-warning-btn:hover{
+  background:rgba(255,255,255,0.12);
+  border-color:rgba(255,255,255,0.48);
+  color:#fff;
+  transform:translateY(-2px) scale(1.03);
+  box-shadow:0 10px 28px rgba(120,80,255,0.2);
+}
+.therapy-warning-btn:active{transform:scale(0.97)}
+
+/* ════════════════════════════════════════════
+   BOTÓN FINAL DE MÚSICA
+════════════════════════════════════════════ */
+.music-final-wrap{
+  display:flex;justify-content:center;
+  padding:1.5rem 0 0;
+  width:100%;
+}
+.music-final-btn{
+  padding:0.85rem 3rem;
+  border-radius:100px;
+  font-family:'Caveat',cursive;
+  font-size:clamp(1.05rem,3vw,1.28rem);
+  cursor:pointer;
+  border:1.5px solid rgba(200,180,180,0.25);
+  background:rgba(180,120,120,0.08);
+  color:rgba(220,200,200,0.7);
+  backdrop-filter:blur(8px);
+  transition:all 0.35s ease;
+  -webkit-tap-highlight-color:transparent;
+  letter-spacing:0.05em;
+}
+.music-final-btn:hover{
+  background:rgba(180,80,80,0.14);
+  border-color:rgba(200,100,100,0.45);
+  color:rgba(240,210,210,0.95);
+  transform:translateY(-3px);
+  box-shadow:0 10px 32px rgba(120,40,40,0.3);
+}
+.music-final-btn:active{transform:scale(0.97)}
+
+/* ════════════════════════════════════════════
+   SECCIÓN CIERRE — tema vacío y dolor
+════════════════════════════════════════════ */
+.closure-section{
+  position:fixed;inset:0;z-index:830;
+  background:radial-gradient(ellipse at 50% 30%,#0d0608 0%,#030305 70%);
+  display:flex;align-items:flex-start;justify-content:center;
+  overflow-y:auto;
+  -webkit-overflow-scrolling:touch;
+  opacity:0;pointer-events:none;
+  transition:opacity 1.8s ease;
+}
+.closure-section.active{opacity:1;pointer-events:all}
+
+/* — Formulario puerta — */
+.closure-form-wrap{
+  position:relative;z-index:2;
+  width:100%;max-width:500px;
+  min-height:100vh;
+  display:flex;align-items:center;justify-content:center;
+  padding:2rem clamp(1rem,4vw,1.5rem);
+}
+.closure-card{
+  background:rgba(80,20,20,0.07);
+  border:1px solid rgba(140,60,60,0.18);
+  border-radius:16px;
+  padding:clamp(2rem,6vw,3.2rem) clamp(1.4rem,5vw,3rem);
+  text-align:center;width:100%;
+  backdrop-filter:blur(14px);
+  box-shadow:0 0 0 1px rgba(120,40,40,0.08) inset,0 24px 80px rgba(0,0,0,0.8);
+  animation:fadeUp 0.9s ease 0.3s both;
+}
+.closure-ornament{
+  font-size:1.1rem;
+  color:rgba(160,80,80,0.22);
+  margin-bottom:1.4rem;
+  letter-spacing:0.5em;
+}
+.closure-form-title{
+  font-family:'Cormorant Garamond',serif;
+  font-weight:500;font-style:italic;
+  font-size:clamp(1.25rem,4.5vw,1.85rem);
+  line-height:1.35;
+  color:rgba(220,190,190,0.75);
+  margin-bottom:1.8rem;
+  letter-spacing:0.01em;
+}
+.closure-form-label{
+  font-family:'Cormorant Garamond',serif;font-style:italic;
+  font-size:clamp(0.8rem,2vw,0.9rem);
+  color:rgba(200,160,160,0.3);
+  margin-bottom:1rem;letter-spacing:0.04em;
+}
+.closure-date-input{
+  border-color:rgba(140,60,60,0.28) !important;
+  background:rgba(80,20,20,0.12) !important;
+  color:rgba(220,190,190,0.75) !important;
+}
+.closure-date-input:focus{
+  border-color:rgba(180,80,80,0.5) !important;
+  box-shadow:0 0 0 3px rgba(120,40,40,0.1) !important;
+}
+.closure-error{
+  font-family:'Cormorant Garamond',serif;font-style:italic;
+  font-size:0.88rem;color:rgba(200,80,80,0.65);
+  margin-bottom:1.2rem;min-height:1.2rem;transition:opacity 0.3s;
+}
+.closure-error.hidden{opacity:0;pointer-events:none}
+.closure-submit-btn{
+  display:inline-block;margin-top:1.2rem;
+  padding:0.75rem 2.4rem;
+  background:rgba(80,20,20,0.18);
+  border:1px solid rgba(160,60,60,0.3);
+  border-radius:100px;
+  font-family:'Cormorant Garamond',serif;font-style:italic;
+  font-size:1.05rem;color:rgba(210,170,170,0.7);
+  cursor:pointer;transition:all 0.3s ease;letter-spacing:0.05em;
+}
+.closure-submit-btn:hover{
+  background:rgba(120,30,30,0.28);
+  border-color:rgba(200,80,80,0.55);
+  color:rgba(240,200,200,0.9);
+  transform:translateY(-2px);
+  box-shadow:0 8px 28px rgba(80,0,0,0.35);
+}
+
+/* — Texto paginado de odio — */
+.closure-text-wrap{
+  position:relative;z-index:2;
+  width:100%;max-width:700px;
+  display:none;flex-direction:column;
+  align-items:center;
+  gap:clamp(2.5rem,5vw,3.5rem);
+  padding:clamp(3rem,7vw,5rem) clamp(1rem,4vw,1.8rem) clamp(4rem,8vw,6rem);
+}
+.closure-text-wrap.visible{display:flex;animation:fadeUp 0.9s ease both}
+.closure-text-wrap.hidden{display:none}
+
+/* Visor de párrafos — hereda estructura de terapia pero tema oscuro-odio */
+.closure-para-viewer{
+  width:100%;display:flex;flex-direction:column;
+  align-items:center;gap:clamp(1.5rem,3.5vw,2.2rem);
+}
+.closure-para-index{
+  font-family:'Cormorant Garamond',serif;font-style:italic;
+  font-size:clamp(0.72rem,2vw,0.84rem);letter-spacing:0.22em;
+  color:rgba(160,80,80,0.42);text-transform:uppercase;
+}
+.closure-para-stage{
+  width:100%;display:flex;align-items:center;justify-content:center;
+  padding:0 0.1rem;
+}
+.closure-para-text{
+  font-family:'EB Garamond',serif;
+  font-size:clamp(1.05rem,3.5vw,1.28rem);
+  line-height:1.95;
+  color:rgba(195,175,175,0.82);
+  text-align:center;width:100%;
+  transition:opacity 0.38s ease,transform 0.38s ease;
+}
+.closure-para-text.fade-out{opacity:0;transform:translateY(8px)}
+.closure-para-text.fade-in{animation:paraIn 0.5s ease both}
+/* Resaltados de odio */
+.cl-hl{font-style:italic;color:rgba(220,200,200,0.96);font-weight:500}
+.cl-hl-key{
+  font-style:italic;font-weight:500;
+  color:#c07070;
+  text-shadow:0 0 16px rgba(180,60,60,0.3);
+}
+.cl-hl-fire{
+  font-style:italic;font-weight:600;
+  background:linear-gradient(135deg,#8b1a1a 0%,#c0392b 50%,#8b1a1a 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+.cl-hl-void{
+  font-style:italic;
+  color:rgba(120,100,100,0.6);
+  letter-spacing:0.04em;
+}
+/* Último párrafo — coda fría */
+.closure-para-text.is-final{
+  font-size:clamp(1.1rem,4vw,1.48rem);
+  color:rgba(200,170,170,0.88);
+  font-style:italic;
+  line-height:1.7;
+  border-top:1px solid rgba(120,40,40,0.22);
+  padding-top:1.5rem;
+}
+
+/* Navegación — tonos de frío/odio */
+.closure-para-nav{
+  display:flex;align-items:center;justify-content:center;
+  gap:clamp(0.6rem,2.5vw,1.4rem);flex-wrap:nowrap;width:100%;
+}
+.closure-nav-btn{
+  width:clamp(38px,8vw,44px);height:clamp(38px,8vw,44px);flex-shrink:0;
+  border-radius:50%;
+  border:1px solid rgba(140,60,60,0.32);background:rgba(80,20,20,0.14);
+  color:rgba(200,150,150,0.65);font-size:clamp(0.9rem,2.5vw,1.1rem);
+  cursor:pointer;transition:all 0.22s ease;
+  display:flex;align-items:center;justify-content:center;
+  -webkit-tap-highlight-color:transparent;
+}
+.closure-nav-btn:hover:not(:disabled){
+  border-color:rgba(200,80,80,0.5);background:rgba(120,30,30,0.22);
+  color:rgba(230,180,180,0.9);transform:scale(1.08);
+}
+.closure-nav-btn:active:not(:disabled){transform:scale(0.94)}
+.closure-nav-btn:disabled{opacity:0.18;cursor:default}
+
+.closure-dots{
+  display:flex;align-items:center;
+  gap:clamp(5px,1.8vw,8px);flex-wrap:wrap;justify-content:center;
+  max-width:calc(100% - 100px);
+}
+.closure-dot{
+  width:clamp(6px,1.8vw,8px);height:clamp(6px,1.8vw,8px);
+  border-radius:50%;background:rgba(140,60,60,0.28);
+  transition:all 0.28s ease;cursor:pointer;flex-shrink:0;
+  -webkit-tap-highlight-color:transparent;
+}
+.closure-dot.active{background:rgba(200,80,80,0.75);transform:scale(1.35)}
+.closure-dot:hover:not(.active){background:rgba(180,80,80,0.45)}
+
+/* — Imagen final — */
+.closure-final-img{
+  width:100%;display:flex;flex-direction:column;
+  align-items:center;gap:clamp(1.2rem,3vw,1.8rem);
+  opacity:0;transform:translateY(22px);
+  transition:opacity 1.4s ease,transform 1.4s ease;
+  padding-top:1rem;
+}
+.closure-final-img.visible{opacity:1;transform:translateY(0)}
+.closure-final-img.hidden{display:none}
+.closure-img{
+  width:100%;max-width:min(380px,90vw);
+  border-radius:10px;
+  border:1px solid rgba(120,40,40,0.22);
+  box-shadow:0 12px 60px rgba(0,0,0,0.7),0 0 0 1px rgba(80,20,20,0.3);
+  display:block;
+  filter:brightness(0.88) contrast(1.05);
+}
+.closure-img-quote{
+  font-family:'Cormorant Garamond',serif;font-style:italic;
+  font-size:clamp(0.95rem,3vw,1.18rem);
+  color:rgb(255, 255, 255);
+  text-align:center;
+  line-height:1.5;
+  max-width:400px;
+  letter-spacing:0.01em;
+}
+.closure-img-quote.top{color:rgb(255, 255, 255)}
+.closure-img-quote.bottom{
+  color:rgb(255, 255, 255);
+  font-size:clamp(0.85rem,2.5vw,1rem);
+  letter-spacing:0.06em;
+}
+
+@media(max-width:480px){
+  .closure-card{padding:1.8rem 1rem}
+  .closure-form-title{font-size:1.15rem}
+  .closure-text-wrap{padding:2.5rem 0.85rem 3.5rem;gap:2rem}
+  .closure-para-nav{gap:0.45rem}
+  .closure-nav-btn{width:36px;height:36px}
+  .closure-dots{max-width:calc(100% - 84px)}
+  .therapy-warning-inner{padding:1.8rem 1.1rem}
+}

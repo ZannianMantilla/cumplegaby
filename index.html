@@ -97,8 +97,24 @@
   <!-- Partículas de terapia -->
   <canvas id="therapy-canvas"></canvas>
 
+  <!-- ═══ ADVERTENCIA DE TERAPIA ═══ -->
+  <div id="therapy-warning" class="therapy-warning-screen">
+    <div class="therapy-warning-inner">
+      <div class="therapy-warning-icon">⚠️</div>
+      <h2 class="therapy-warning-title">Antes de continuar</h2>
+      <p class="therapy-warning-body">
+        Si quieres ver esto, ten en cuenta que probablemente abra heridas sentimentales.<br>
+        No es nada malo, pero sí tiene que ver con un sentimiento fuerte.<br><br>
+        Esto fue parte de mi terapia. Mi psicólogo me dijo que era una actividad necesaria
+        para poder cerrar correctamente y no terminar con malos entendidos.
+      </p>
+      <div class="therapy-warning-divider"></div>
+      <button class="therapy-warning-btn" id="therapy-warning-btn">Entendido, continuar</button>
+    </div>
+  </div>
+
   <!-- FORMULARIO -->
-  <div id="therapy-form-wrap" class="therapy-form-wrap">
+  <div id="therapy-form-wrap" class="therapy-form-wrap" style="display:none">
     <div class="therapy-card">
       <div class="therapy-ornament">✦</div>
       <h1 class="therapy-question">
@@ -206,8 +222,55 @@
         </div>
       </div>
 
+    </div><!-- /.music-grid -->
+
+    <!-- Botón continuar hacia el cierre -->
+    <div class="music-final-wrap" id="music-final-wrap">
+      <button id="btn-music-final" class="music-final-btn">Continuar</button>
+    </div>
+
+  </div><!-- /.music-inner -->
+</div><!-- /#music-choice -->
+
+<!-- ═══ SECCIÓN CIERRE ═══ -->
+<div id="closure" class="closure-section">
+
+  <!-- Formulario de fecha — puerta de entrada al texto de odio -->
+  <div id="closure-form-wrap" class="closure-form-wrap">
+    <div class="closure-card">
+      <div class="closure-ornament">✦</div>
+      <h2 class="closure-form-title">Salimos los 3 a jugar ping-pong</h2>
+      <p class="closure-form-label">Ingresa la fecha para continuar</p>
+      <div class="date-field">
+        <input type="date" id="closure-date" class="date-input closure-date-input">
+      </div>
+      <p id="closure-error" class="closure-error hidden">No es esa la fecha.</p>
+      <button id="closure-submit" class="closure-submit-btn">Continuar →</button>
     </div>
   </div>
+
+  <!-- Texto de odio — paginado -->
+  <div id="closure-text-wrap" class="closure-text-wrap hidden">
+    <div class="closure-para-viewer">
+      <div class="closure-para-index" id="closure-para-index">1 / 4</div>
+      <div class="closure-para-stage" id="closure-para-stage">
+        <p class="closure-para-text" id="closure-para-text"></p>
+      </div>
+      <div class="closure-para-nav">
+        <button class="closure-nav-btn" id="closure-prev" aria-label="Anterior">&#8592;</button>
+        <div class="closure-dots" id="closure-dots"></div>
+        <button class="closure-nav-btn" id="closure-next" aria-label="Siguiente">&#8594;</button>
+      </div>
+    </div>
+
+    <!-- Imagen final — aparece al llegar al último párrafo -->
+    <div id="closure-final-img" class="closure-final-img hidden">
+      <p class="closure-img-quote top">Ahora sí querrás decirle te amo a mi oscuridad.</p>
+      <img src="oscuridad.jpg" alt="oscuridad" class="closure-img">
+      <p class="closure-img-quote bottom">Me alegra saber que seré tu lección de vida.</p>
+    </div>
+  </div>
+
 </div>
 
 <script src="app.js"></script>
