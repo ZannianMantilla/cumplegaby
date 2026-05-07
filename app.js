@@ -669,23 +669,61 @@ document.getElementById('music-choice').addEventListener('transitionend', functi
 
 
 // ─────────────────────────────────────────────────────────
+//  AUDIO DE CIERRE (decepción)
+// ─────────────────────────────────────────────────────────
+const decepcionAudio  = new Audio('decepcion.mp3');
+decepcionAudio.loop   = true;
+decepcionAudio.volume = 0;
+
+function startDecepcionAudio() {
+  decepcionAudio.currentTime = 0;
+  decepcionAudio.play().catch(() => {});
+  let vol = 0;
+  const fadeIn = setInterval(() => {
+    vol = Math.min(vol + 0.03, 0.5);
+    decepcionAudio.volume = vol;
+    if (vol >= 0.5) clearInterval(fadeIn);
+  }, 80);
+}
+
+function stopDecepcionAudio() {
+  (function fadeOut() {
+    if (decepcionAudio.volume > 0.05) {
+      decepcionAudio.volume = Math.max(0, decepcionAudio.volume - 0.05);
+      setTimeout(fadeOut, 60);
+    } else {
+      decepcionAudio.pause();
+      decepcionAudio.currentTime = 0;
+      decepcionAudio.volume = 0;
+    }
+  })();
+}
+
+
+// ─────────────────────────────────────────────────────────
 //  SECCIÓN CIERRE — formulario + paginado de odio + imagen final
 // ─────────────────────────────────────────────────────────
 const CLOSURE_VALID_DATE = '2026-05-02';
 
 // Párrafos con HTML de resaltado (misma estructura que terapia)
 const CLOSURE_PARAGRAPHS = [
-  // 1 — título + primer párrafo
-  `<span style="display:block;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:0.82em;letter-spacing:0.2em;color:rgba(228, 87, 87, 0.93);text-transform:uppercase;margin-bottom:1.2rem;">actualización 2/05/2025 — soy escritor y como escritor te hablaré</span>El día de hoy estaba <em class="cl-hl">feliz</em>, me dije a mi mismo que todo saldría bien, que te abrazaría fuerte y te diría que te cuidaras mucho. Pero apenas te vi supe que <em class="cl-hl-key">la mujer de la cual me enamoré había muerto</em>. Se notaba en tu aspecto físico, en tu manera de actuar y en tu simple presencia. Para empezar, no sé por qué aceptaste la salida si ibas a <em class="cl-hl-key">comportarte conmigo de esa manera</em>, ignorándome en todo momento. Claro que se notó. Me pregunto qué se sentirá tratar como una <em class="cl-hl-fire">basura</em> a una persona que aún después de todo se preocupó porque <em class="cl-hl">te enfermaras por la lluvia</em>.`,
+  // 1 — contexto emocional del día
+  `<span style="display:block;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:0.82em;letter-spacing:0.2em;color:rgba(228, 87, 87, 0.93);text-transform:uppercase;margin-bottom:1.2rem;">actualización 2/05/2026 — soy escritor y como escritor te hablaré</span>Le conté a él mi <em class="cl-hl">emoción</em> porque me respondieras con un sí de vernos, porque sabía que mi corazón <em class="cl-hl-key">rebotaría de esquina a esquina</em> al ver tus ojos nuevamente. Esperé con ansias, y ese día él notó cómo yo esbozaba una <em class="cl-hl">sonrisa de lado a lado</em> cuando te vi a lo lejos. Me dije a mí mismo que todo saldría bien; no esperaba volver, solo poder <em class="cl-hl-key">demostrarte el amor que tengo hacia ti</em>. Pensé que al final del día te abrazaría fuerte y te diría que te cuidaras mucho.`,
 
-  // 2
-  `Créeme que la <em class="cl-hl-key">decepción da lecciones</em>. Créeme que me demostraste lo realmente <em class="cl-hl-fire">dañada</em> que estás, y claro que lo sabía desde que fuimos pareja, pero <em class="cl-hl">quería cuidar y sanar eso de ti</em>. Créeme que esto me duele demasiado, pero…`,
+  // 2 — la decepción al llegar
+  `Pero apenas llegaste, <em class="cl-hl-fire">ni una mirada me regalaste</em>. Era un fantasma. Algo cambió: <em class="cl-hl-key">la mujer de la cual me enamoré había muerto</em>. Se notaba en tu aspecto físico; parecía que te hubieran revolcado en el piso, cuando incluso recién levantada te veías tan preciosa como <em class="cl-hl">una escultura grecorromana</em>. También en tu manera de actuar: la mujer que conocí no acostumbraba a ser tan grosera. La presencia de la mujer a la que le gustaba arreglar su cabello, maquillarse y brillar con el ardor de una estrella, ahora era solo <em class="cl-hl-void">altanería grisácea</em>.`,
 
-  // 3
-  `Si lucifer te mostró el cielo y tú decidiste <em class="cl-hl-key">permanecer en el infierno</em>, entonces no te asustes cuando te encuentres de cara con <em class="cl-hl-fire">satanás</em>. Porque yo ya no voy a permitir que me sigas <em class="cl-hl-key">faltando el respeto</em> de esa forma. Menos mal tú misma te quitaste de tu pedestal para convertirte en <em class="cl-hl-void">una más del montón</em>. Menos mal que tengo el suficiente <em class="cl-hl">amor propio</em> para no tener empatía por ti como tú no la tuviste por mí.`,
+  // 3 — el trato recibido
+  `Para empezar, no sé por qué aceptaste la salida si ibas a <em class="cl-hl-key">comportarte conmigo de esa manera</em>. Fui yo quien cordialmente te pidió salir porque quería pasar tiempo contigo, y no sé qué se te cruzó por la mente que intentabas <em class="cl-hl-fire">ignorarme lo más posible</em>. Por supuesto que se notaba ese trato. Me pregunto qué se sentirá tratar como <em class="cl-hl-fire">basura</em> a una persona que, aun después de todo, empacó un día antes <em class="cl-hl">un buzo para que te lo pusiéramos por si llegaba a llover</em>.`,
 
-  // 4 — coda fría
-  `Créeme que esto lo voy a recordar, sabes que cosas podria hacer en contra de ti pero me alegra, <em class="cl-hl-fire">Ser mejor de lo que tu eres</em>.`,
+  // 4 — las decepciones dan lecciones
+  `Las decepciones dan lecciones. Ahora me demuestras lo realmente <em class="cl-hl-fire">rota</em> que estás por dentro, algo que ya sabía cuando nos conocíamos por tus comportamientos, pero el amor todo lo puede y yo quería que sintieras <em class="cl-hl-key">un hogar conmigo</em>, un lugar donde pudieras sanar todo eso. Por eso te abrazaba tanto, porque no quería que <em class="cl-hl">la niña que yo veía</em> sufriera tanto. Realmente esto me duele demasiado, porque no quería que las cosas terminaran así, pero…`,
+
+  // 5 — Lucifer y Satanás
+  `Si Lucifer te mostró el cielo y tú decidiste <em class="cl-hl-key">permanecer en el infierno</em>, entonces no te asustes cuando te encuentres de cara con <em class="cl-hl-fire">Satanás</em>. Porque yo ya no voy a permitir que me sigas <em class="cl-hl-key">faltando al respeto</em> de esa forma; ya es la cuarta vez con esta. Menos mal que tú misma manchaste la buena imagen que tenía de ti; así es más fácil <em class="cl-hl-void">convertirte en una más del montón</em>. Por suerte, tengo el suficiente <em class="cl-hl">amor propio</em> para no tener empatía por ti, como tú no la tuviste por mí.`,
+
+  // 6 — coda fría
+  `Créeme que ambos vamos a recordar esto. Sabes quién soy y lo que podria hacer pero me alegra saber que <em class="cl-hl-fire">soy mejor de lo que tú eres</em>.`,
 ];
 
 let closureCurrentPara = 0;
@@ -740,6 +778,7 @@ function showClosureText() {
     textWrap.classList.remove('hidden');
     textWrap.classList.add('visible');
     initClosureViewer();
+    startDecepcionAudio();
   }, 650);
 }
 
